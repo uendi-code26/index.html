@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love Heart</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#000}
+body{display:flex;justify-content:center;align-items:center}
+canvas{display:block;background:#000}
+</style>
+</head>
+<body>
+<canvas id="heartCanvas" width="800" height="800"></canvas>
+<script>
+const WIDTH=800,HEIGHT=800,RED="#ff4b3e",LIGHT_RED="#ff786e",SC=17,OFFSET_Y=20;
+const PHRASES=["I love you","Seni seviyorum","Te amo","Je t'aime","Ich liebe dich","Ti amo","Eu te amo","Я тебя люблю","사랑해","愛してる","我爱你","मैं तुमसे प्यार करता हूँ","Σ' αγαπώ","Ik hou van jou","Jag älskar dig","Kocham cię","ฉันรักคุณ","Anh yêu em","Aku cinta kamu","Я тебе кохаю"];
+const canvas=document.getElementById("heartCanvas"),ctx=canvas.getContext("2d");
+function seededRandom(seed){return()=>{seed=(seed*9301+49297)%233280;return seed/233280}}
+const rng=seededRandom(11);
+function randomInt(a,b){return Math.floor(rng()*(b-a+1))+a}
+function heartPoint(a){return{x:16*Math.sin(a)**3*SC,y:(13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a))*SC+OFFSET_Y}}
+let outlinePoints=[],fillPoints=[];
+for(let i=0;i<110;i++){let p=heartPoint(2*Math.PI*i/110);outlinePoints.push({...p,outline:true})}
+for(let y=-290;y<260;y+=18)for(let x=-310;x<=310;x+=28){
+ let hx=x/(SC*.85),hy=(y-OFFSET_Y)/(SC*.85);
+ if((hx*hx+hy*hy-1)**3-(hx*hx)*hy**3<=0)fillPoints.push({x:x+randomInt(-4,4),y:y+randomInt(-4,4),outline:false});
+}
+fillPoints.sort((a,b)=>(a.x*a.x+a.y*a.y)-(b.x*b.x+b.y*b.y));
+const points=fillPoints.concat(outlinePoints);
+ctx.textAlign="center";ctx.textBaseline="middle";
+function resize(){let s=Math.min(innerWidth/WIDTH,innerHeight/HEIGHT,1);canvas.style.width=WIDTH*s+"px";canvas.style.height=HEIGHT*s+"px"}
+addEventListener("resize",resize);resize();
+let index=0;
+function animate(){
+ if(index>=points.length)return;
+ let p=points[index],phrase=PHRASES[index%PHRASES.length];
+ if(p.outline){ctx.font="bold 9px Arial";ctx.fillStyle=LIGHT_RED}
+ else{ctx.font=`bold ${randomInt(8,10)}px Arial`;ctx.fillStyle=RED}
+ ctx.fillText(phrase,WIDTH/2+p.x,HEIGHT/2-p.y);
+ index++;setTimeout(animate,18)
+}
+animate();
+</script>
+</body>
+</html>
